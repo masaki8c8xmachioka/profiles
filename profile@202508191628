@@ -1,0 +1,34 @@
+function winget-install {
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$packageName,
+
+        [Parameter(ValueFromRemainingArguments=$true)]
+        [string[]]$remainingArgs
+    )
+
+    $defaultLocation = "D:\wingetapps" # ここに希望のデフォルトインストール先パスを記述
+    $locationSpecified = $false
+
+    # ユーザーが --location または -l を指定したかチェック
+    if ($remainingArgs) {
+        foreach ($arg in $remainingArgs) {
+            if ($arg -eq "--location" -or $arg -eq "-l") {
+                $locationSpecified = $true
+                break
+            }
+        }
+    }
+
+    # --locationが指定されていない場合、デフォルトのパスを追加
+    if (-not $locationSpecified) {
+        winget.exe install $packageName --location $defaultLocation @remainingArgs
+    }
+    else {
+        # --locationが指定されている場合は、そのままの引数で実行
+        winget.exe install $packageName @remainingArgs
+    }
+}
+
+# winget installのエイリアスを設定
+Set-Alias -Name wi -Value winget-install
